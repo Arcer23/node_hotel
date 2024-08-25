@@ -29,6 +29,7 @@ router.get("/:taste", async function (req, res) {
     res.status(500).json({ error: "Error Popped Out" });
   }
 });
+
 router.get("/", async function (req, res) {
   try {
     const data = await Food.find();
