@@ -4,7 +4,8 @@ require("dotenv").config();
 // const link = "mongodb://127.0.0.1:27017/details";
 //setting up mongodb connection
 // const mongo_url = 'mongodb+srv://pranishkadel1:pranishisgood@cluster0.04wh6.mongodb.net/'
-const mongo_url = process.env.DB_URL;
+// const mongo_url = process.env.DB_URL;
+const mongo_url = process.env.DB_URL_LOCAL;
 mongoose.connect(mongo_url);
 //get the defualt connection
 //Mongoose maintains a default connection object representing the mongodb connection
