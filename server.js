@@ -13,6 +13,9 @@ const foodroutes = require("./routes/food");
 app.use("/person", personRoutes); 
 app.use("/menu", foodroutes);
 
+app.get('/',(res,req)=>{
+  res.send("Welcome to My Hotels Sir")
+})
 const PORT = process.env.PORT || 3000; // if in process.env.PORT there is port value that it uses the current value otherwise it will use the another value
 app.listen( PORT, () => {
   console.log("server is currently runnning");
