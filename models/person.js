@@ -1,58 +1,56 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
-//now we are creating the schema because we are going to store some information about a particular person or a thing
-const bcrypt = require('bcrypt')
+// Define the schema for a person
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: true, // Name is required
   },
   age: {
-    type: Number,
+    type: Number, // Age is optional
   },
   work: {
     type: String,
-    enum: ["chef", "manager", "waiter"],
+    enum: ["chef", "manager", "waiter"], // Work can only be one of these three values
   },
   username: {
-    required: true,
     type: String,
+    required: true, // Username is required
   },
   password: {
-    required: true,
     type: String,
+    required: true, // Password is required
   },
 });
 
+// Middleware to hash the password before saving a person
 personSchema.pre("save", async function (next) {
   const person = this;
-  //we are going to hash the password if it has been modified (or is new);
+
+  // If the password hasn't been modified, move to the next middleware
   if (!person.isModified("password")) return next();
+
   try {
-    //now we are generating the hash password
+    // Generate a salt and hash the password
     const salt = await bcrypt.genSalt(10);
-    //hash password
+    person.password = await bcrypt.hash(person.password, salt);
 
-    const hashedpassword = await bcrypt.hash(person.password, salt);
-
-    //overriding the plain password with the hashed one
-
-    person.password = hashedpassword;
-
-    next();
+    next(); // Proceed with saving the document
   } catch (error) {
-    return next(error);
+    next(error); // Pass any errors to the next middleware
   }
 });
 
-personSchema.methods.comparepassword = async function (candidatePassword) {
-  try{
-    const isMatch = await bcrypt.compare(candidatePassword , this.password);
-    return isMatch;
-  }catch(error){
-    throw error;
+// Method to compare a candidate password with the stored password
+personSchema.methods.comparePassword = async function (candidatePassword) {
+  try {
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error) {
+    throw error; // Throw an error if password comparison fails
   }
-}
+};
 
+// Create and export the Person model
 const Person = mongoose.model("Person", personSchema);
 module.exports = Person;
