@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const Person = require("./../models/person"); //Schema of Person
-
+const { jwtAuthmiddeWare, ganeratetoken } = require("./../jwt");
 //making a post route to add the person details to the database
-router.post("/", async (req, res) => {
+router.post("/signup", async (req, res) => {
   try {
     const data = req.body; // assuming the request body contains the person data
 
@@ -13,10 +13,56 @@ router.post("/", async (req, res) => {
     //and now we are saving new person to the database
     const response = await newPerson.save();
     console.log("Your data have been saved ");
-    res.status(200).json(response);
+
+    const payload = {
+      id: response.id,
+      username: response.username,
+    };
+
+    const token = ganeratetoken(payload);
+    console.log("Token is ", token);
+
+    res.status(200).json({ response: response, token: token });
   } catch (error) {
     console.log("error", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await Person.findOne({ username: username });
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(401).json({ error: "Invaid username or Password" });
+    }
+
+    //now we are generating token
+    const payload = {
+      id: user.id,
+      username: user.username,
+    };
+
+    const token = ganeratetoken(payload);
+    res.json({ token });
+  } catch (error) {
+    console.log("error");
+    res.status(401).json({ error: "Internal Server Error" });
+  }
+});
+
+router.get("/profile", jwtAuthmiddeWare, async () => {
+  try {
+    const Userdata = req.user;
+    console.log("User Data ", Userdata);
+
+    const userId = Userdata.id;
+    const user = await Person.findById(userId);
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server error" });
   }
 });
 

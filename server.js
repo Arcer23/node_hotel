@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const personRoutes = require("./routes/personRoutes");
 const foodRoutes = require("./routes/food");
 const { initializePassport, LocalAuthMiddleware } = require("./auth");
-const db = require('./db')
+const db = require("./db");
 
 // Load environment variables
 dotenv.config();
@@ -15,7 +15,9 @@ app.use(bodyParser.json());
 
 // Logging middleware
 const logRequest = (req, res, next) => {
-  console.log(`[${new Date().toLocaleString()}] Request Made to : ${req.originalUrl}`);
+  console.log(
+    `[${new Date().toLocaleString()}] Request Made to : ${req.originalUrl}`
+  );
   next();
 };
 app.use(logRequest);
@@ -24,7 +26,7 @@ app.use(logRequest);
 initializePassport(app);
 
 // Routes
-app.get("/", LocalAuthMiddleware, (req, res) => {
+app.get("/", (req, res) => {
   res.send("Welcome to Our Hotel");
 });
 app.use("/person", personRoutes);
